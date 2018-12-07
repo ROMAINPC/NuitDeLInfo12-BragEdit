@@ -28,6 +28,7 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -45,6 +46,7 @@ public class MainS extends Application {
 	
 	private static ServerSocket ss;
 	private static boolean socketCree = false;
+	private static Socket connexion;
 	
 	
 	@Override
@@ -55,15 +57,17 @@ public class MainS extends Application {
 			//Scene de login:
 			BorderPane rootLogin = new BorderPane();
 			VBox D = new VBox();
+			D.setPadding(new Insets(0,0,0,50));
+			Scene scene = new Scene(rootLogin, 1280, 720);
 			
+			Console txtServ = new Console();
+			txtServ.prefWidthProperty().bind(scene.widthProperty().divide(2));
 			
-			
-			//a changer
-			VBox G = new VBox();
-			
+		
+			rootLogin.setLeft(txtServ);
 			rootLogin.setRight(D);
 			rootLogin.setBackground(new Background(new BackgroundFill(Color.rgb(50,50,50), null, null)));
-			Scene scene = new Scene(rootLogin, 1280, 720);
+
 			D.prefWidthProperty().bind(scene.widthProperty().divide(2));
 			
 			//test
@@ -96,10 +100,11 @@ public class MainS extends Application {
 			D.getChildren().addAll(dServ);
 			dServ.setVisible(false);
 			
-			
+
 			
 			
 			Cserv.setOnAction((ActionEvent e)-> {
+				txtServ.afficher("Serveur créé");
 				
 				try {
 					
@@ -120,6 +125,7 @@ public class MainS extends Application {
 					noServ.setVisible(true);
 					new Timeline (new KeyFrame(Duration.millis(1500), ae -> noServ.setVisible(false))).play();
 					e1.printStackTrace();
+					txtServ.afficher("problème de port");
 				}
 				
 				
@@ -129,6 +135,7 @@ public class MainS extends Application {
 			});
 			
 			dServ.setOnAction(ae -> {
+				txtServ.afficher("Demande de connexion");
 				System.out.println("demande de co");
 				
 				try {
@@ -137,12 +144,13 @@ public class MainS extends Application {
 					try {
 						
 						
-						Socket connexion = ss.accept();
-						
+						connexion = ss.accept();
+						txtServ.afficher("Connexion de : ");
 						
 					} catch (IOException e1) {
 						System.out.println("pb");
 						e1.printStackTrace();
+						txtServ.afficher("timeout atteint");
 					}
 					
 					
@@ -164,6 +172,7 @@ public class MainS extends Application {
 				if(socketCree) {
 					try {
 						ss.close();
+						//connexion.close();
 					} catch (IOException e1) {
 						// TODO Bloc catch généré automatiquement
 						e1.printStackTrace();
