@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.curlybraguette;
 	
+import java.io.IOException;
 import java.net.Socket;
 
 import javafx.animation.KeyFrame;
@@ -42,6 +43,7 @@ public class MainC extends Application {
 	
 	private static Socket socket;
 	
+	private static boolean socketCree = false;
 	
 	
 	@Override
@@ -103,17 +105,28 @@ public class MainC extends Application {
 				
 				String login = entreeLogin.getText();
 				String ip = entreeIP.getText();
-				String prt = entreePort.getText();
+				String port = entreePort.getText();
 				
-				//int port
 				
-				if(!isLoginValid(login)) {
+				
+				if(!isLoginValid(login) || !convert2int(port)) {
+					
 					saisie.setVisible(true);
 					new Timeline (new KeyFrame(Duration.millis(1500), ae -> saisie.setVisible(false))).play();
 				}else{
 					
 					
-					socket = new Socket(login, 00000);
+					try {
+						socket = new Socket(ip, Integer.parseInt(port));
+						socketCree = true;
+						System.out.println("yeeeeeeeeeeeeeeees ! ! ! ! ! !");
+					} catch (IOException e1) {
+						saisie.setVisible(true);
+						socketCree =false;
+						new Timeline (new KeyFrame(Duration.millis(1500), ae -> saisie.setVisible(false))).play();
+						e1.printStackTrace();
+						System.out.println("problème ! ! !!  !");
+					}
 					
 					
 					
@@ -136,7 +149,14 @@ public class MainC extends Application {
 			primaryStage.show();
 			
 			primaryStage.setOnCloseRequest(event -> {
-				socket.close();
+				if(socketCree) {
+					try {
+						socket.close();
+					} catch (IOException e1) {
+						// TODO Bloc catch généré automatiquement
+						e1.printStackTrace();
+					}
+				}
 				Platform.exit();
 			    
 			});
@@ -144,7 +164,6 @@ public class MainC extends Application {
 			
 			
 		} catch(Exception e) {
-			socket.close();
 			e.printStackTrace();
 		}
 	}
@@ -172,6 +191,16 @@ public class MainC extends Application {
 		
 		return true;
 	}
+	
+	
+	private boolean convert2int(String nb) {
+		try{
+			Integer.parseInt(nb);
+			return true;
+		}catch(NumberFormatException e){
+			return false;
+		}
+}
 	
 	
 }

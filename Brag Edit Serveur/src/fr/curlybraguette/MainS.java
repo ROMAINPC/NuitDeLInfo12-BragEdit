@@ -17,7 +17,17 @@
 
 package fr.curlybraguette;
 	
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -28,9 +38,15 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 
 public class MainS extends Application {
+	
+	private static ServerSocket ss;
+	private static boolean socketCree = false;
+	
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -64,21 +80,98 @@ public class MainS extends Application {
 			Label noServ = new Label("ERREUR PAS DE SERVEUR");
 			D.getChildren().addAll(noServ);
 			noServ.setId("warning");
+			noServ.setVisible(false);
 			
 			Label id = new Label("ID Serveur : XXXX.XXXX.XXXX.XXXX");
 			D.getChildren().addAll(id);
 			id.setId("indicator");
+			id.setVisible(false);
 			
 			Label port = new Label("Port Serveur : XX");
 			D.getChildren().addAll(port);
 			port.setId("indicator");
+			port.setVisible(false);
 			
 			Button dServ = new Button("Demande de connection");
 			D.getChildren().addAll(dServ);
+			dServ.setVisible(false);
+			
+			
+			
+			
+			Cserv.setOnAction((ActionEvent e)-> {
+				
+				try {
+					
+					ss = new ServerSocket(0);
+					socketCree = true;
+					Cserv.setVisible(false);
+					id.setVisible(true);
+					
+					id.setText("ID Serveur : " + InetAddress.getLocalHost().getHostAddress());
+					
+					port.setVisible(true);
+					port.setText("Port Serveur : " + ss.getLocalPort());
+					
+					dServ.setVisible(true);
+					
+					
+				} catch (Exception e1) {
+					noServ.setVisible(true);
+					new Timeline (new KeyFrame(Duration.millis(1500), ae -> noServ.setVisible(false))).play();
+					e1.printStackTrace();
+				}
+				
+				
+				
+				
+				
+			});
+			
+			dServ.setOnAction(ae -> {
+				System.out.println("demande de co");
+				
+				try {
+					ss.setSoTimeout(5000);
+					
+					try {
+						
+						
+						Socket connexion = ss.accept();
+						
+						
+					} catch (IOException e1) {
+						System.out.println("pb");
+						e1.printStackTrace();
+					}
+					
+					
+				} catch (SocketException e1) {
+					System.out.println("pb2");
+					e1.printStackTrace();
+					
+				}
+				
+				
+			});
+			
+			
 			
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Brag Edit");
 			primaryStage.show();
+			primaryStage.setOnCloseRequest(event -> {
+				if(socketCree) {
+					try {
+						ss.close();
+					} catch (IOException e1) {
+						// TODO Bloc catch généré automatiquement
+						e1.printStackTrace();
+					}
+				}
+				Platform.exit();
+			    
+			});
 			
 			
 		} catch(Exception e) {
