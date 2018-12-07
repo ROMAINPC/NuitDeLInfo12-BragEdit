@@ -1,20 +1,20 @@
 /*******************************************************************************
- * Copyright (C) 2018 Curly Braguette (ROMAINPC Killian Dieu Matoz)
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-
+ * /*******************************************************************************
+ *  * Copyright (C) 2018 Curly Braguette (ROMAINPC Killian Dieu Matoz)
+ *  * 
+ *  * This program is free software: you can redistribute it and/or modify
+ *  * it under the terms of the GNU General Public License as published by
+ *  * the Free Software Foundation, either version 3 of the License, or
+ *  * (at your option) any later version.
+ *  * 
+ *  * This program is distributed in the hope that it will be useful,
+ *  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  * GNU General Public License for more details.
+ *  * 
+ *  * You should have received a copy of the GNU General Public License
+ *  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  ******************************************************************************/
 package fr.curlybraguette;
 	
 import java.io.IOException;
@@ -42,11 +42,22 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 
-public class MainS extends Application {
+public class MainS extends Application{
 	
 	private static ServerSocket ss;
 	private static boolean socketCree = false;
 	private static Socket connexion;
+	private static Thread thread = null;
+	private int clientCount = 0;
+	private ChatServerThread clients[] = new ChatServerThread[50];
+	
+	private static boolean demandeEnCours = false;
+	private static Console txtServ;
+	
+	
+	
+	
+	
 	
 	
 	@Override
@@ -60,7 +71,7 @@ public class MainS extends Application {
 			D.setPadding(new Insets(0,0,0,50));
 			Scene scene = new Scene(rootLogin, 1280, 720);
 			
-			Console txtServ = new Console();
+			txtServ = new Console();
 			txtServ.prefWidthProperty().bind(scene.widthProperty().divide(2));
 			
 		
@@ -106,6 +117,10 @@ public class MainS extends Application {
 			Cserv.setOnAction((ActionEvent e)-> {
 				txtServ.afficher("Serveur créé");
 				
+				//thread = new Thread(this);
+				//thread.start();
+				
+				
 				try {
 					
 					ss = new ServerSocket(0);
@@ -120,6 +135,8 @@ public class MainS extends Application {
 					
 					dServ.setVisible(true);
 					
+					
+
 					
 				} catch (Exception e1) {
 					noServ.setVisible(true);
@@ -144,7 +161,7 @@ public class MainS extends Application {
 					try {
 						
 						
-						connexion = ss.accept();
+						new Handler(ss.accept()).start();
 						txtServ.afficher("Connexion de : ");
 						
 					} catch (IOException e1) {
@@ -178,6 +195,7 @@ public class MainS extends Application {
 						e1.printStackTrace();
 					}
 				}
+				//thread.stop();
 				Platform.exit();
 			    
 			});
@@ -190,5 +208,82 @@ public class MainS extends Application {
 	
 	public static void main(String[] args) {
 		launch(args);
+	}
+/*
+	@Override
+	public void run() {
+		System.out.println("run");
+		while (thread != null)
+	      { //System.out.println("lalala");
+			
+			
+			
+			
+			try
+	         {  System.out.println("Waiting for a client ..."); 
+	         
+	         	if(demandeEnCours) {
+	         		addThread(ss.accept());
+	         		demandeEnCours = false;
+	         		}
+	            
+	         
+	         }
+	         catch(IOException ioe)
+	         {  System.out.println("Server accept error: " + ioe); try {
+				stop();
+			} catch (Exception e) {
+				// TODO Bloc catch généré automatiquement
+				e.printStackTrace();
+			} }
+			
+	      }
+		
+		
+	}
+	private void addThread(Socket socket)
+	   {  if (clientCount < clients.length)
+	      {  System.out.println("Client accepted: " + socket);
+	         clients[clientCount] = new ChatServerThread(this, socket);
+	         try
+	         {  clients[clientCount].open(); 
+	            clients[clientCount].start();  
+	            clientCount++; }
+	         catch(IOException ioe)
+	         {  System.out.println("Error opening thread: " + ioe); } }
+	      else
+	         System.out.println("Client refused: maximum " + clients.length + " reached.");
+	   }
+	public synchronized void remove(int ID)
+	   {  int pos = findClient(ID);
+	      if (pos >= 0)
+	      {  ChatServerThread toTerminate = clients[pos];
+	         System.out.println("Removing client thread " + ID + " at " + pos);
+	         if (pos < clientCount-1)
+	            for (int i = pos+1; i < clientCount; i++)
+	               clients[i-1] = clients[i];
+	         clientCount--;
+	         try
+	         {  toTerminate.close(); }
+	         catch(IOException ioe)
+	         {  System.out.println("Error closing thread: " + ioe); }
+	         toTerminate.stop(); }
+	   }
+	private int findClient(int ID)
+	   {  for (int i = 0; i < clientCount; i++)
+	         if (clients[i].getID() == ID)
+	            return i;
+	      return -1;
+	   }
+	public synchronized void handle(int ID, String input)
+	   {  
+	      
+	         for (int i = 0; i < clientCount; i++) {
+	            clients[i].send(ID + ": " + input);   
+	            txtServ.afficher(ID + ": " + input);
+	         }
+	   }*/
+	public static Console getCons() {
+		return txtServ;
 	}
 }
