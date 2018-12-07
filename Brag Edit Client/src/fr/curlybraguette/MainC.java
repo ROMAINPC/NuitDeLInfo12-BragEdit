@@ -49,7 +49,9 @@ public class MainC extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			
+			//scene principale:
+			Interface gui = new Interface(1280, 720);
+			gui.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			
 			//Scene de login:
 			StackPane rootLogin = new StackPane();
@@ -120,6 +122,8 @@ public class MainC extends Application {
 						socket = new Socket(ip, Integer.parseInt(port));
 						socketCree = true;
 						System.out.println("yeeeeeeeeeeeeeeees ! ! ! ! ! !");
+						primaryStage.setScene(gui);
+						
 					} catch (IOException e1) {
 						saisie.setVisible(true);
 						socketCree =false;
